@@ -1,0 +1,5 @@
+# 캐시 파일 삭제
+__pycache__
+
+# 사용자 ID, PW 파일
+secrete.py
