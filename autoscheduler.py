@@ -6,8 +6,66 @@ from selenium.webdriver.support.ui import Select
 from secrete import *
 import time
 
-def repeatReservation(driver: webdriver):
-    driver.page_sourve
+def repeatReservation(driver: webdriver, reserve_date):
+    building_list = driver.find_element(By.NAME, "blid")
+    PET_Home = Select(building_list)
+    PET_Home.select_by_value('012500')
+    time.sleep(1)
+
+    # 310A
+    room_list = driver.find_element(By.NAME, "rm_id")
+    room310A = Select(room_list)
+    room310A.select_by_value("310A")
+
+    # 날짜
+    date = driver.find_element(By.ID, "date")
+    date.clear()
+    date.send_keys(reserve_date)
+
+    settingStartTime_list = ["10:00", "13:00"]
+    settingEndTime_list = ["13:00", "16:00"]
+
+    reserve_window = driver.current_window_handle
+
+    # 연속으로 예약하는 로직 내부 버그 수정
+    for start, end in zip(settingStartTime_list, settingEndTime_list):
+        print(driver.page_source)
+        # 조회
+        btnSearch = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//input[@type='button'][@value='조회']"))
+        )
+        btnSearch.click()
+
+        # 예약
+        btnReserve = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(By.XPATH, "//input[@type='button'][@value='예약 신청'][@name='button']")
+        )
+        btnReserve.click()
+        time.sleep(2)
+
+        # 예약 창으로 driver를 이동
+        driver.switch_to.window(driver.window_handles[2])
+        useName = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.NAME, "subject"))
+        )
+        useName.send_keys("세미나(ll)")
+        content = driver.find_element(By.NAME, "content")
+        content.send_keys("세미나")
+
+        # 시간 설정
+        timeStart_list = driver.find_element(By.NAME, "time_start")
+        timeStart = Select(timeStart_list)
+        timeStart.select_by_value(start)
+        timeEnd_list = driver.find_element(By.NAME, "time_end")
+        timeEnd = Select(timeEnd_list)
+        timeEnd.select_by_value(end)
+
+        # 예약
+        btnInnerReserve = driver.find_element(By.XPATH, "//input[@type='button'][@value='예약신청'][@name='button']")
+        btnInnerReserve.click()
+        driver.close()
+        driver.switch_to.window(reserve_window)
+        time.sleep(2)
 
 def autoscheduling(driver: webdriver):
     koreaUniv = 'https://portal.korea.ac.kr/'
@@ -31,63 +89,22 @@ def autoscheduling(driver: webdriver):
     # new_tab = [tab for tab in driver.window_handles if tab != original_window]
     driver.switch_to.window(driver.window_handles[1])
 
-    btnIgnore = WebDriverWait(driver, 10).until(
+    btnIgnore = WebDriverWait(driver, 4).until(
         EC.visibility_of_element_located((By.ID, "proceed-button"))
     )
     btnIgnore.click()
+    
+    # 반복문 추가 1시간 이후 재 시동하여 서버 상태 확인 로직 추가
+    try:
+        manual_search_link = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//a[@href='rm_reserve_control1_all.jsp']"))
+        )
+        manual_search_link.click()
+        WebDriverWait(driver, 10).until(
+            EC.frame_to_be_available_and_switch_to_it((By.NAME, "frame1"))
+        )
 
-    manual_search_link = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, "//a[@href='rm_reserve_control1_all.jsp']"))
-    )
-    manual_search_link.click()
-    WebDriverWait(driver, 10).until(
-        EC.frame_to_be_available_and_switch_to_it((By.NAME, "frame1"))
-    )
-
-    # 로봇융합관
-    building_list = driver.find_element(By.NAME, "blid")
-    PET_Home = Select(building_list)
-    PET_Home.select_by_value('012500')
-    time.sleep(1)
-
-    # 310A
-    room_list = driver.find_element(By.NAME, "rm_id")
-    room310A = Select(room_list)
-    room310A.select_by_value("310A")
-
-    # 날짜
-    date = driver.find_element(By.ID, "date")
-    date.clear()
-    date.send_keys("2024-03-08")
-
-    # 조회
-    btnSearch = driver.find_element(By.XPATH, "//input[@type='button'][@value='조회']")
-    btnSearch.click()
-    time.sleep(1)
-
-    # 예약
-    btnReserve = driver.find_element(By.XPATH, "//input[@type='button'][@value='예약 신청'][@name='button']")
-    btnReserve.click()
-    time.sleep(2)
-
-    # 예약 창으로 driver를 이동
-    driver.switch_to.window(driver.window_handles[2])
-    useName = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.NAME, "subject"))
-    )
-    useName.send_keys("세미나(ll)")
-    content = driver.find_element(By.NAME, "content")
-    content.send_keys("세미나")
-
-    # 시간 정하기 (10:00 ~ 13:00)
-    timeStart_list = driver.find_element(By.NAME, "time_start")
-    timeStart = Select(timeStart_list)
-    timeStart.select_by_value("10:00")
-    timeEnd_list = driver.find_element(By.NAME, "time_end")
-    timeEnd = Select(timeEnd_list)
-    timeEnd.select_by_value("13:00")
-
-    # 예약
-    btnInnerReserve = driver.find_element(By.XPATH, "//input[@type='button'][@value='예약신청'][@name='button']")
-    btnInnerReserve.click()
-    time.sleep(1)
+    except Exception as e:
+        print(e)
+        
+    repeatReservation(driver, "2024-03-08")
