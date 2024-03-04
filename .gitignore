@@ -3,3 +3,6 @@ __pycache__
 
 # 사용자 ID, PW 파일
 secrete.py
+
+# 메일 관련 비밀 값
+sendEMailSetting.py
