@@ -114,6 +114,7 @@ def repeatReservation(driver: webdriver, reserve_date):
 
         # 예약
         btnInnerReserve = driver.find_element(By.XPATH, "//input[@type='button'][@value='예약신청'][@name='button']")
+        print(f"{reserve_date} 시간:{start}:{end} 예약 진행 완료")
         btnInnerReserve.click()
         driver.close()
         driver.switch_to.window(reserve_window)
