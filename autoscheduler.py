@@ -13,7 +13,7 @@ import calendar
 dictStrToNum = {"월": 0, "화": 1, "수": 2, "목": 3, "금": 4, "토": 5, "일": 6}
 
 def find_seminar_day_list(strDay) -> list:
-    currentTime = datetime.datetime.now()
+    currentTime = datetime.date.today()
     year = currentTime.year
     month = currentTime.month
     day = currentTime.day
@@ -50,8 +50,8 @@ def skipHTTPSError(driver: webdriver):
 
 
 def repeatReservation(driver: webdriver, reserve_date):
-    settingStartTime_list = ["10:00", "13:00"]
-    settingEndTime_list = ["13:00", "16:00"]
+    settingStartTime_list = ["10:00", "13:00","16:00"]
+    settingEndTime_list = ["13:00", "16:00", "19:00"]
     
     reserve_window = driver.current_window_handle
 

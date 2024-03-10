@@ -10,9 +10,9 @@ def sendEmail(toAddress: list, error):
     form = MIMEBase('multipart', 'mixed')
     form['Subject'] = Header("[PET] 세미나실 예약 프로그램 동작 오류".encode('UTF-8'), 'UTF-8')
     form['From'] = "PET-세미나 봇"
-    form['to'] = ','.join(toAddress)
+    form['to'] = toAddress
 
-    content = MIMEText(error.encode('UTF-8'), _subtype='plain', _charset="UTF-8")
+    content = MIMEText(str(error), _subtype='plain', _charset="UTF-8")
     form.attach(content)
 
     smtp_server, port = smtp_info['gmail.com']

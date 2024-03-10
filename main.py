@@ -16,22 +16,30 @@ def job():
         "safebrowsing.enabled": True
     })
 
-    strSeminarDay = '금'
-    lastReservation = None
+    strSeminarDay_list = ['화', '금']
+    lastReservation = datetime.date.today()
 
-    list_reservation = find_seminar_day_list(strSeminarDay)
+    list_reservation = []
+    for day in strSeminarDay_list:
+        list_reservation += find_seminar_day_list(day)
 
     for day in list_reservation:
-        if day < lastReservation:
-            continue
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        if day > lastReservation:
+            print(f'{len(list_reservation)}개의 예약 중 {day.strftime("%Y-%m-%d")}를 예약합니다.')
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+            lastReservation = autoscheduling(driver, day, lastReservation)
+       
 
-        lastReservation = autoscheduling(driver, day, lastReservation)
+def run_schedule_job():
+    today = datetime.date.today().weekday()
+
+    if today == 1 or today == 4:
+        job()
 
 if __name__ == '__main__':
-    # 특정 요일 설정(매주 금요일 오후 0:00)
-    schedule.every().friday.at("00:00").do(job)
-
+    # 특정 요일 설정(매주 토요일 오후 0:00)
+    schedule.every().day.at("00:00").do(run_schedule_job)
     while True:
         schedule.run_pending()
         time.sleep(60)  # 검사 간격을 60초로 설정
+    # job()
