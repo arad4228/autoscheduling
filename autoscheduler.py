@@ -12,7 +12,7 @@ import calendar
 
 dictStrToNum = {"월": 0, "화": 1, "수": 2, "목": 3, "금": 4, "토": 5, "일": 6}
 
-def find_seminar_day_list(strDay) -> list:
+def find_seminar_day_list(strDay: str) -> list:
     currentTime = datetime.date.today()
     year = currentTime.year
     month = currentTime.month
@@ -49,9 +49,13 @@ def skipHTTPSError(driver: webdriver):
     btnIgnore.click()
 
 
-def repeatReservation(driver: webdriver, reserve_date):
-    settingStartTime_list = ["10:00", "13:00","16:00"]
-    settingEndTime_list = ["13:00", "16:00", "19:00"]
+def repeatReservation(driver: webdriver, reserve_date:datetime):
+    if reserve_date.weekday() == 1:
+        settingStartTime_list = ["12:00","15:00"]
+        settingEndTime_list = ["15:00", "18:00"]
+    else:
+        settingStartTime_list = ["10:00", "13:00","16:00"]
+        settingEndTime_list = ["13:00", "16:00", "19:00"]
     
     reserve_window = driver.current_window_handle
 
@@ -80,7 +84,7 @@ def repeatReservation(driver: webdriver, reserve_date):
         # 날짜
         date = driver.find_element(By.ID, "date")
         date.clear()
-        date.send_keys(reserve_date)
+        date.send_keys(reserve_date.strftime("%Y-%m-%d"))
 
         # 조회
         btnSearch = WebDriverWait(driver, 10).until(
@@ -114,7 +118,7 @@ def repeatReservation(driver: webdriver, reserve_date):
 
         # 예약
         btnInnerReserve = driver.find_element(By.XPATH, "//input[@type='button'][@value='예약신청'][@name='button']")
-        print(f"{reserve_date} 시간:{start}:{end} 예약 진행 완료")
+        print(f"{reserve_date} 시간:{start} ~ {end} 예약 진행 완료")
         btnInnerReserve.click()
         driver.close()
         driver.switch_to.window(reserve_window)
@@ -146,7 +150,7 @@ def autoscheduling(driver: webdriver, strDay, lastReservation):
     try:
         skipHTTPSError(driver)
 
-        repeatReservation(driver, strDay.strftime("%Y-%m-%d"))
+        repeatReservation(driver, strDay)
         return strDay
 
     except WebDriverException as e:
