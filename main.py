@@ -35,7 +35,7 @@ def job():
 def run_schedule_job():
     today = datetime.date.today().weekday()
     print(f"{datetime.datetime.now().strftime('%Y-%m-%d-%I:%M')} 작업 동작")
-    if today == 1 or today == 4:
+    if today == 2 or today == 5:
         job()
 
 if __name__ == '__main__':
