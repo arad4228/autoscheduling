@@ -54,8 +54,8 @@ def repeatReservation(driver: webdriver, reserve_date:datetime):
         settingStartTime_list = ["12:00","15:00"]
         settingEndTime_list = ["15:00", "18:00"]
     else:
-        settingStartTime_list = ["10:00", "13:00","16:00"]
-        settingEndTime_list = ["13:00", "16:00", "19:00"]
+        settingStartTime_list = ["10:00", "13:00"]
+        settingEndTime_list = ["13:00", "16:00"]
     
     reserve_window = driver.current_window_handle
 
