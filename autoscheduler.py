@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import WebDriverException, TimeoutException
+from selenium.common.exceptions import WebDriverException, NoAlertPresentException, TimeoutException
 from secrete import *
 from sendMail import *
 import time
@@ -48,7 +48,13 @@ def skipHTTPSError(driver: webdriver):
     )
     btnIgnore.click()
 
-
+def checkAltert(driver: webdriver):
+    try:
+        alert = driver.switch_to.alert
+        alert.accept()
+    except NoAlertPresentException:
+        return None
+    
 def repeatReservation(driver: webdriver, reserve_date:datetime):
     if reserve_date.weekday() == 1:
         settingStartTime_list = ["12:00","15:00"]
@@ -149,11 +155,12 @@ def autoscheduling(driver: webdriver, strDay, lastReservation):
     # new_tab = [tab for tab in driver.window_handles if tab != original_window]
     try:
         skipHTTPSError(driver)
-
+        checkAltert(driver)
         repeatReservation(driver, strDay)
         return strDay
 
     except WebDriverException as e:
-        print(e)
-        sendEmail(Mail_Address, e)
+        error_date = strDay.strftime("%Y-%m-%d")
+        sendEmail(Mail_Address, f"{error_date}일자의 예약에서 아래의 오류가 발생했습니다.\n"+e)
         driver.quit()
+        return strDay
